@@ -1,0 +1,63 @@
+name: OpenUSD product validation
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Validate extension syntax
+        run: |
+          python -m py_compile \
+            'templates/extensions/python_ui/template/{{python_module_path}}/extension.py'
+
+      - name: Validate generated test syntax
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path(
+              "templates/extensions/python_ui/template/"
+              "{{python_module_path}}/tests/test_hello_world.py"
+          )
+          source = path.read_text(encoding="utf-8").replace(
+              "{{ python_module }}", "generated_module"
+          )
+          compile(source, str(path), "exec")
+          PY
+
+      - name: Validate OpenUSD sample structure
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path(
+              "templates/extensions/python_ui/template/data/openusd_product_demo.usda"
+          )
+          source = path.read_text(encoding="utf-8")
+          required = (
+              "#usda 1.0",
+              'def Xform "World"',
+              "CleanEnergyGrid1",
+              "NanoPrintFab1",
+              "3DNanoPrint",
+              "BasisCurves",
+          )
+          missing = [value for value in required if value not in source]
+          if missing:
+              raise SystemExit(f"Missing USD sample markers: {missing}")
+          PY
+
+      - name: Check diff whitespace
+        run: git diff --check

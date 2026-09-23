@@ -1,0 +1,119 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    upAxis = "Y"
+)
+
+def Xform "World"
+{
+    def Xform "CleanEnergyGrid1"
+    {
+        custom token cleanEnergy:nodeType = "Grid"
+        custom bool cleanEnergy:renewable = true
+
+        def Xform "Substation_0_0"
+        {
+            custom token cleanEnergy:nodeType = "Substation"
+        }
+
+        def Xform "Substation_0_1"
+        {
+            custom token cleanEnergy:nodeType = "Substation"
+            double3 xformOp:translate = (20, 0, 0)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Xform "Substation_1_0"
+        {
+            custom token cleanEnergy:nodeType = "Substation"
+            double3 xformOp:translate = (0, 0, 20)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Xform "Substation_1_1"
+        {
+            custom token cleanEnergy:nodeType = "Substation"
+            double3 xformOp:translate = (20, 0, 20)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def BasisCurves "Line_H_0_0"
+        {
+            uniform token type = "linear"
+            int[] curveVertexCounts = [2]
+            point3f[] points = [(0, 0, 0), (20, 0, 0)]
+            float[] widths = [0.15]
+        }
+
+        def BasisCurves "Line_V_0_0"
+        {
+            uniform token type = "linear"
+            int[] curveVertexCounts = [2]
+            point3f[] points = [(0, 0, 0), (0, 0, 20)]
+            float[] widths = [0.15]
+        }
+
+        def Xform "SolarPlant"
+        {
+            custom token cleanEnergy:nodeType = "SolarPlant"
+            custom bool cleanEnergy:renewable = true
+            double3 xformOp:translate = (-20, 0, 10)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Xform "WindFarm"
+        {
+            custom token cleanEnergy:nodeType = "WindFarm"
+            custom bool cleanEnergy:renewable = true
+            double3 xformOp:translate = (10, 0, 40)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Xform "BatteryStorage"
+        {
+            custom token cleanEnergy:nodeType = "BatteryStorage"
+            custom bool cleanEnergy:renewable = false
+            double3 xformOp:translate = (40, 0, 10)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+    }
+
+    def Xform "NanoPrintFab1"
+    {
+        custom token fab:process = "3DNanoPrint"
+        custom token fab:status = "Planned"
+
+        def Xform "Cleanroom"
+        {
+            custom token fab:stationType = "Cleanroom"
+            custom bool fab:cleanEnergyRequired = true
+        }
+
+        def Xform "MaterialStation"
+        {
+            custom token fab:stationType = "MaterialStation"
+            custom bool fab:cleanEnergyRequired = true
+            double3 xformOp:translate = (-12, 0, 0)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Xform "Inspection"
+        {
+            custom token fab:stationType = "Inspection"
+            custom bool fab:cleanEnergyRequired = true
+            double3 xformOp:translate = (12, 0, 0)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Xform "NanoPrinter_01"
+        {
+            custom token fab:process = "3DNanoPrint"
+            custom token fab:stationType = "NanoPrinter"
+            custom bool fab:cleanEnergyRequired = true
+            custom token fab:status = "Planned"
+            double3 xformOp:translate = (-10.5, 0, 3)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+    }
+}

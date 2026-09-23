@@ -11,7 +11,7 @@
 [package]
 title = "{{ extension_display_name }}"
 version = "{{ version }}"  # Semantic Versioning is used: https://semver.org/
-description = "The simplest python UI extension example. Use it as a starting point for your extensions."
+description = "A Python UI extension for creating and transforming USD primitives."
 category = "Example"  # How to categorize this in the Extension Manager
 changelog = "docs/CHANGELOG.md"
 icon = "data/icon.png"  # Icon to show in the Extension Manager
@@ -23,6 +23,7 @@ repository = "https://github.com/NVIDIA-Omniverse/kit-app-template"  # URL of th
 
 [dependencies]
 "omni.kit.uiapp" = {}
+"omni.usd" = {}
 
 
 [settings]
