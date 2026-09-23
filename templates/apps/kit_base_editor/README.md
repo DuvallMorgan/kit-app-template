@@ -18,6 +18,13 @@ Kit Base Editor Template is ideal for developers looking to build:
 - Scene loading
 - RTX Renderer
 - Basic UI for manipulating and exploring 3D scenes.
+- OpenUSD product planning workflows, including clean-energy grids and
+  nanoprint fab layouts.
+
+The base editor enables RTX as the default renderer. To inspect the included
+product scene after creating an application from this template, open
+`data/openusd_product_demo.usda` from the generated Python UI extension, or
+pass its absolute path to the application's USD-stage loading command.
 
 ## Usage
 
