@@ -10,6 +10,8 @@ This extension demonstrates a small OpenUSD workflow:
 - Generate a conceptual 3D nanoprint fab with cleanroom, material, inspection,
   and configurable printer-bay stations.
 - Open `data/openusd_product_demo.usda` as a starter OpenUSD product scene.
+- Generate a world-city layout with roads, housing, hotels, data centers, and
+  a clean-energy utility hub.
 
 The grid is a planning visualization, not an engineering certification. Real
 deployments still require electrical studies, interconnection analysis,

@@ -55,6 +55,10 @@ class Test(omni.kit.test.AsyncTestCase):
             "{{ extension_display_name }}//Frame/**/Button[*].text=='Build nanoprint fab'"
         )
         self.assertIsNotNone(fab_button)
+        city_button = ui_test.find(
+            "{{ extension_display_name }}//Frame/**/Button[*].text=='Build 3D city'"
+        )
+        self.assertIsNotNone(city_button)
 
     async def test_builders_create_valid_usd(self):
         context = omni.usd.get_context()
@@ -95,3 +99,16 @@ class Test(omni.kit.test.AsyncTestCase):
         self.assertTrue(
             printer.GetAttribute("fab:cleanEnergyRequired").Get()
         )
+
+        city_button = ui_test.find(
+            "{{ extension_display_name }}//Frame/**/Button[*].text=='Build 3D city'"
+        )
+        await city_button.click()
+        await omni.kit.app.get_app().next_update_async()
+
+        city = stage.GetPrimAtPath("/World/WorldCity1")
+        self.assertTrue(city.IsValid())
+        hotel = stage.GetPrimAtPath("/World/WorldCity1/Block_0_0/Hotel")
+        self.assertTrue(hotel.IsValid())
+        self.assertEqual(hotel.GetAttribute("city:buildingType").Get(), "Hotel")
+        self.assertTrue(hotel.GetAttribute("city:cleanEnergyRequired").Get())

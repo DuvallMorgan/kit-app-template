@@ -78,6 +78,15 @@ class MyExtension(omni.ext.IExt):
                     ui.Label("Printer bays", width=90)
                     self._printer_count = ui.IntField(8, min=1, max=64)
                 ui.Button("Build nanoprint fab", clicked_fn=self._build_fab)
+                ui.Separator(height=8)
+                ui.Label("World city generator", height=24)
+                with ui.HStack():
+                    ui.Label("City blocks", width=90)
+                    self._city_size = ui.IntField(4, min=1, max=20)
+                with ui.HStack():
+                    ui.Label("Block spacing", width=90)
+                    self._city_spacing = ui.FloatField(35.0, min=5.0)
+                ui.Button("Build 3D city", clicked_fn=self._build_city)
 
     def _create_prim(self):
         """Create a primitive on the current USD stage and select it."""
@@ -233,6 +242,88 @@ class MyExtension(omni.ext.IExt):
             [root_path], True
         )
         self._status.text = f"Built 3D nanoprint fab with {printer_count} printer bays"
+
+    def _build_city(self):
+        """Create a procedural city block layout for world-scale planning."""
+        stage = omni.usd.get_context().get_stage()
+        if stage is None:
+            self._status.text = "Open or create a USD stage first"
+            return
+
+        try:
+            self._ensure_world(stage)
+            size = max(1, min(20, self._city_size.model.as_int))
+            spacing = max(5.0, self._city_spacing.model.as_float)
+            root_path = self._unique_path(stage, "/World", "WorldCity")
+            self._create_prim_checked(stage, root_path, "Xform")
+            for row in range(size):
+                for column in range(size):
+                    x = column * spacing
+                    z = row * spacing
+                    block_path = f"{root_path}/Block_{row}_{column}"
+                    self._create_prim_checked(stage, block_path, "Xform")
+                    self._create_city_building(
+                        stage,
+                        f"{block_path}/Housing",
+                        Gf.Vec3d(x - 8, 6, z + 8),
+                        Gf.Vec3f(8, 12, 8),
+                        "Housing",
+                    )
+                    self._create_city_building(
+                        stage,
+                        f"{block_path}/Hotel",
+                        Gf.Vec3d(x + 8, 10, z + 8),
+                        Gf.Vec3f(8, 20, 8),
+                        "Hotel",
+                    )
+                    self._create_city_building(
+                        stage,
+                        f"{block_path}/DataCenter",
+                        Gf.Vec3d(x, 5, z - 8),
+                        Gf.Vec3f(14, 10, 8),
+                        "DataCenter",
+                    )
+                    self._create_connection(
+                        stage,
+                        f"{root_path}/Road_Row_{row}_{column}",
+                        Gf.Vec3d(x - spacing / 2, 0, z - spacing / 2),
+                        Gf.Vec3d(x + spacing / 2, 0, z - spacing / 2),
+                    )
+                    self._create_connection(
+                        stage,
+                        f"{root_path}/Road_Column_{row}_{column}",
+                        Gf.Vec3d(x - spacing / 2, 0, z - spacing / 2),
+                        Gf.Vec3d(x - spacing / 2, 0, z + spacing / 2),
+                    )
+
+            center = (size - 1) * spacing / 2.0
+            self._create_city_building(
+                stage,
+                f"{root_path}/UtilityHub",
+                Gf.Vec3d(center, 4, -spacing),
+                Gf.Vec3f(12, 8, 12),
+                "UtilityHub",
+            )
+        except RuntimeError as error:
+            self._status.text = str(error)
+            return
+
+        omni.usd.get_context().get_selection().set_selected_prim_paths(
+            [root_path], True
+        )
+        self._status.text = f"Built {size}x{size} world city"
+
+    def _create_city_building(self, stage, path, position, scale, building_type):
+        prim = self._create_prim_checked(stage, path, "Cube")
+        prim.CreateAttribute("city:buildingType", Sdf.ValueTypeNames.Token).Set(
+            building_type
+        )
+        prim.CreateAttribute("city:cleanEnergyRequired", Sdf.ValueTypeNames.Bool).Set(
+            True
+        )
+        xformable = UsdGeom.Xformable(prim)
+        xformable.AddTranslateOp().Set(position)
+        xformable.AddScaleOp().Set(scale)
 
     def _create_fab_node(self, stage, path, position, node_type):
         prim = self._create_prim_checked(stage, path, "Xform")
